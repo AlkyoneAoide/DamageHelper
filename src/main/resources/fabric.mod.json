@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "damagehelper",
+	"version": "${version}",
+	"name": "DamageHelper",
+	"description": "A helper library for damage-related functions.",
+	"authors": [
+		"AlkyoneAoide"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/damagehelper/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"gg.rosie.DamageHelper"
+		],
+		"client": [
+			"gg.rosie.DamageHelperClient"
+		]
+	},
+	"mixins": [
+		"damagehelper.mixins.json"
+	],
+	"custom": {
+		"loom:injected_interfaces": {
+			"net/minecraft/class_1309": ["gg/rosie/injected_interfaces/ILivingEntityMixin"],
+			"net/minecraft/class_1297": ["gg/rosie/injected_interfaces/IEntityMixin"]
+		}
+	},
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
