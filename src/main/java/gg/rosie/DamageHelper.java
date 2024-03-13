@@ -1,19 +1,10 @@
 package gg.rosie;
 
-import com.mojang.authlib.minecraft.client.MinecraftClient;
 import gg.rosie.helper_classes.CustomItemCrits;
-import gg.rosie.injected_interfaces.ILivingEntityMixin;
-import gg.rosie.mixin.LivingEntityMixin;
+
 import net.fabricmc.api.ModInitializer;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DamageHelper implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -28,11 +19,11 @@ public class DamageHelper implements ModInitializer {
 		// Proceed with mild caution.
 
 		// LOGGER.info("Hello Fabric world!");
-		CustomItemCrits.add(new Identifier("miencraft", "air"), (source, amount) -> {
+		CustomItemCrits.add("minecraft:air", (source, amount) -> {
 			System.out.println("inside the thing but empty hand");
 		});
 
-		CustomItemCrits.add(new Identifier("miencraft", "wooden_sword"), (source, amount) -> {
+		CustomItemCrits.add(new Identifier("minecraft", "wooden_sword").toString(), (source, amount) -> {
 			System.out.println("inside the thing but wooden sword");
 		});
 	}

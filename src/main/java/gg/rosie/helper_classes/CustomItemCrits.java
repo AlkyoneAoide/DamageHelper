@@ -1,7 +1,6 @@
 package gg.rosie.helper_classes;
 
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.function.BiConsumer;
@@ -13,15 +12,13 @@ public class CustomItemCrits {
     // applyDamage normally gets.
     // Note that this is only additive, and does not touch existing crit handling code.
     // Also, it is a consumer and therefore has a guaranteed void return type.
-    protected static HashMap<Identifier, BiConsumer<DamageSource, Float>> CUSTOM_CRIT_LIST= new HashMap<>();
+    protected static HashMap<String, BiConsumer<DamageSource, Float>> CUSTOM_CRIT_LIST= new HashMap<>();
 
-    public static void add(Identifier ident, BiConsumer<DamageSource, Float> func) {
-        System.out.println("Adding crit effect");
+    public static void add(String ident, BiConsumer<DamageSource, Float> func) {
         CUSTOM_CRIT_LIST.put(ident, func);
     }
 
-    public static BiConsumer<DamageSource, Float> get(Identifier ident) {
-        System.out.println("Getting crit effect");
+    public static BiConsumer<DamageSource, Float> get(String ident) {
         return CUSTOM_CRIT_LIST.get(ident);
     }
 }
