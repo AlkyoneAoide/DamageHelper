@@ -1,4 +1,4 @@
-package gg.rosie.helper_classes;
+package gg.rosie;
 
 import net.minecraft.entity.damage.DamageSource;
 

@@ -12,17 +12,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityMixin {
 
     @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
     private void isInvulnerableTo(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        RegistryKey<DamageType> damageTypeKey = source.getTypeRegistryEntry().getKey().get();
+        Optional<RegistryKey<DamageType>> damageTypeKey = source.getTypeRegistryEntry().getKey();
 
-        if(source.getAttacker() instanceof LightningEntity || source.getSource() instanceof LightningEntity || Objects.equals(damageTypeKey.getValue().toString(), "minecraft:lightning_bolt")) {
-            System.out.println("Immune to lightning");
-            cir.setReturnValue(true);
+        if (damageTypeKey.isPresent()) {
+            if (source.getAttacker() instanceof LightningEntity || source.getSource() instanceof LightningEntity || Objects.equals(damageTypeKey.get().getValue().toString(), "minecraft:lightning_bolt")) {
+                System.out.println("Immune to lightning");
+                cir.setReturnValue(true);
+            }
         }
     }
 }

@@ -1,7 +1,5 @@
 package gg.rosie;
 
-import gg.rosie.helper_classes.CustomItemCrits;
-
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.util.Identifier;
@@ -19,12 +17,11 @@ public class DamageHelper implements ModInitializer {
 		// Proceed with mild caution.
 
 		// LOGGER.info("Hello Fabric world!");
-		CustomItemCrits.add("minecraft:air", (source, amount) -> {
-			System.out.println("inside the thing but empty hand");
-		});
+		CustomItemCrits.add("minecraft:air", (source, amount) -> System.out.println("inside the thing but empty hand"));
 
 		CustomItemCrits.add(new Identifier("minecraft", "wooden_sword").toString(), (source, amount) -> {
-			System.out.println("inside the thing but wooden sword");
+			System.out.println("inside the thing");
+			System.out.println("but wooden sword");
 		});
 	}
 }

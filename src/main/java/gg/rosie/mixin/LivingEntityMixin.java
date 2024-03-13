@@ -1,6 +1,7 @@
 package gg.rosie.mixin;
 
-import gg.rosie.helper_classes.CustomItemCrits;
+import gg.rosie.CustomItemCrits;
+import gg.rosie.ItemUtils;
 import gg.rosie.injected_interfaces.ILivingEntityMixin;
 import gg.rosie.network.DamageHelperPacket;
 
@@ -11,14 +12,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
 
 import net.minecraft.util.Identifier;
 
@@ -78,7 +75,15 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
     // and not for the attacking entity
     @Override
     public void applyDamageInject(DamageSource source, float amount) {
-        if (LivingEntityMixin.class.isAssignableFrom(source.getAttacker().getClass()) &&
+        Class<?> attackerClass;
+
+        try {
+            attackerClass = Objects.requireNonNull(source.getAttacker()).getClass();
+        } catch (Exception e) {
+            return;
+        }
+
+        if (LivingEntityMixin.class.isAssignableFrom(attackerClass) &&
                 (((LivingEntityMixin) source.getAttacker()).isCritical())) {
             LivingEntityMixin attacker = (LivingEntityMixin) source.getAttacker();
 
@@ -90,11 +95,11 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
                 handItems.add(item);
             }
 
-            // How to get the RegistryEntry in a non-deprecated way
-            Optional<RegistryEntry.Reference<Item>> r = Registries.ITEM.getEntry(Item.getRawId(handItems.get(0).getItem()));
+            Identifier itemIdent = ItemUtils.identifierFromItem(handItems.get(0).getItem());
 
-            // How to get the Identifier from the RegistryEntry
-            Identifier itemIdent = r.get().getKey().get().getValue();
+            if (itemIdent == null) {
+                return;
+            }
 
             String identString = itemIdent.toString();
             BiConsumer<DamageSource, Float> toRun = CustomItemCrits.get(identString);
