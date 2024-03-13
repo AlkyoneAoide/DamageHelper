@@ -61,7 +61,6 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
 
     @Override
     public void setCritical(boolean flag) {
-        System.out.println("Set crit to " + flag);
         this.crit = flag;
 
         if (!this.getWorld().isClient()) {
