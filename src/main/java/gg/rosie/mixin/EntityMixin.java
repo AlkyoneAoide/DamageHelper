@@ -40,10 +40,8 @@ public abstract class EntityMixin implements IEntityMixin {
             }
 
             if (immunities.contains(damageSource)) {
-                System.out.println("Immune to " + damageSource);
                 cir.setReturnValue(true);
             } else if (mobDamageIdent != null && immunities.contains(mobDamageIdent.toString())) {
-                System.out.println("Immune to " + mobDamageIdent);
                 cir.setReturnValue(true);
             }
         }
