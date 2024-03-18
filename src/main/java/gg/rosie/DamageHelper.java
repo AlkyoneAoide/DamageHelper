@@ -46,14 +46,14 @@ public class DamageHelper implements ModInitializer {
 	public static class Immunity {
 		// list of entity ID (not uuid) and corresponding list of damage sources
 		// (as identifiers: minecraft:lightning_bolt or minecraft:zombie) to have immunity to
-		protected static HashMap<Integer, List<String>> IMMUNITY_LIST = new HashMap<>();
+		protected static HashMap<Integer, ArrayList<String>> IMMUNITY_LIST = new HashMap<>();
 
 		// Add immunity from damageSource to entity id
 		public static void add(int id, String damageSource) {
 			if (IMMUNITY_LIST.containsKey(id)) {
 				IMMUNITY_LIST.get(id).add(damageSource);
 			} else {
-				IMMUNITY_LIST.put(id, Collections.singletonList(damageSource));
+				IMMUNITY_LIST.put(id, new ArrayList<>(Collections.singletonList(damageSource)));
 			}
 		}
 
@@ -70,7 +70,7 @@ public class DamageHelper implements ModInitializer {
 		}
 
 		// get the list of immunities the entity id should have
-		public static List<String> get(int id) {
+		public static ArrayList<String> get(int id) {
 			return IMMUNITY_LIST.get(id);
 		}
 	}
