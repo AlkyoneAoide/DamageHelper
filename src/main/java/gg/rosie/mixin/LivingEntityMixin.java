@@ -1,7 +1,7 @@
 package gg.rosie.mixin;
 
-import gg.rosie.CustomItemCrits;
-import gg.rosie.ItemUtils;
+import gg.rosie.DamageHelper;
+import gg.rosie.DamageHelperUtils;
 import gg.rosie.injected_interfaces.ILivingEntityMixin;
 import gg.rosie.network.DamageHelperPacket;
 
@@ -91,14 +91,14 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
 				handItems.add(item);
 			}
 
-			Identifier itemIdent = ItemUtils.identifierFromItem(handItems.get(0).getItem());
+			Identifier itemIdent = DamageHelperUtils.IdentifierFromItem(handItems.get(0).getItem());
 
 			if (itemIdent == null) {
 				return;
 			}
 
 			String identString = itemIdent.toString();
-			BiConsumer<DamageSource, Float> toRun = CustomItemCrits.get(identString);
+			BiConsumer<DamageSource, Float> toRun = DamageHelper.ItemCrits.get(identString);
 			if (toRun != null) {
 				toRun.accept(source, amount);
 			}
