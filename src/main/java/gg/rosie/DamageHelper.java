@@ -1,7 +1,14 @@
 package gg.rosie;
 
+import gg.rosie.state.PersistentPlayerData;
+import gg.rosie.state.WorldState;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 
 import java.util.*;
@@ -13,8 +20,15 @@ public class DamageHelper implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	// public static final Logger LOGGER = LoggerFactory.getLogger("damagehelper");
 
+	public static final String MOD_ID = "damagehelper";
+
 	@Override
-	public void onInitialize() {}
+	public void onInitialize() {
+		// Runs code (to restore saved player health) on player connect
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			PlayerHealth.setPlayerHealth(handler.getPlayer(), WorldState.getPlayerState(handler.getPlayer()).maxHealthModifier);
+		});
+	}
 
 	public static class ItemCrits {
 		// A map of identifiers to functions, to run when a crit is hit
@@ -38,6 +52,7 @@ public class DamageHelper implements ModInitializer {
 			CUSTOM_CRIT_LIST.put(ident, func);
 		}
 
+		// Get the crit function for the specified item/identifier
 		public static BiConsumer<DamageSource, Float> get(String ident) {
 			return CUSTOM_CRIT_LIST.get(ident);
 		}
@@ -72,6 +87,47 @@ public class DamageHelper implements ModInitializer {
 		// get the list of immunities the entity id should have
 		public static ArrayList<String> get(int id) {
 			return IMMUNITY_LIST.get(id);
+		}
+	}
+
+	public static class PlayerHealth {
+		// Store a new value for max player health, relative to default health
+		// Ex. if you want to set a player to 9 hearts, pass -2
+		// (one heart is two units, default is 20 units or 10 hearts)
+		public static void setPlayerHealth(LivingEntity player, int playerHealthModifier) {
+			PersistentPlayerData playerState = WorldState.getPlayerState(player);
+			playerState.maxHealthModifier = playerHealthModifier;
+
+			updatePlayerHealth(player);
+		}
+
+		// Get current max health of player
+		public static int getPlayerHealthTotal(LivingEntity player) {
+			PersistentPlayerData playerState = WorldState.getPlayerState(player);
+
+			return PersistentPlayerData.DEFAULT_HEALTH + playerState.maxHealthModifier;
+		}
+
+		// Get current difference of default max health and player max health
+		public static int getPlayerHealthModifier(LivingEntity player) {
+			PersistentPlayerData playerState = WorldState.getPlayerState(player);
+
+			return playerState.maxHealthModifier;
+		}
+
+		// Update player max health with the server stored one
+		// (this is the function to do actual work lol)
+		// Use entity attributes to do so, with keys/uuids as the player uuids
+		protected static void updatePlayerHealth(LivingEntity player) {
+			PersistentPlayerData playerState = WorldState.getPlayerState(player);
+
+			// just interface with health mixin or whatever here
+			EntityAttributeInstance attributeInstance = player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+
+			if (attributeInstance != null) {
+				attributeInstance.removeModifier(player.getUuid());
+				attributeInstance.addPersistentModifier(new EntityAttributeModifier(player.getUuid(), "DamageHelper::updatePlayerHealth", playerState.maxHealthModifier, EntityAttributeModifier.Operation.ADDITION));
+			}
 		}
 	}
 }

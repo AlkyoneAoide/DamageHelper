@@ -7,3 +7,4 @@ Much code yoinked from [CriticaLib](https://github.com/hamusuke0323/CriticaLib),
 Features:
 - Easy on-crit functions for custom items
 - Selective (per entity and per damage source) immunity
+- Modify max health per-player (saved across world/server restarts)
