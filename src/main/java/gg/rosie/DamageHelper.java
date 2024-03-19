@@ -4,6 +4,7 @@ import gg.rosie.state.PersistentPlayerData;
 import gg.rosie.state.WorldState;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -28,6 +29,11 @@ public class DamageHelper implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			PlayerHealth.setPlayerHealth(handler.getPlayer(), WorldState.getPlayerState(handler.getPlayer()).maxHealthModifier);
 		});
+
+		// Same thing on respawn
+		ServerPlayerEvents.AFTER_RESPAWN.register(((oldPlayer, newPlayer, alive) -> {
+			PlayerHealth.setPlayerHealth(newPlayer, WorldState.getPlayerState(newPlayer).maxHealthModifier);
+		}));
 	}
 
 	public static class ItemCrits {
