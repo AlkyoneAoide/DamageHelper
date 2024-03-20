@@ -27,14 +27,16 @@ public class DamageHelper implements ModInitializer {
 	public void onInitialize() {
 		// Runs code (to restore saved player health) on player connect
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			PlayerHealth.setPlayerHealth(handler.getPlayer(), WorldState.getPlayerState(handler.getPlayer()).maxHealthModifier);
-			handler.getPlayer().setHealth(PlayerHealth.getPlayerHealthTotal(handler.getPlayer()));
+			LivingEntity player = handler.getPlayer();
+
+			PlayerHealth.setPlayerHealth(player, WorldState.getPlayerState(player).maxHealthModifier);
+			player.setHealth(PlayerHealth.getPlayerHealthTotal(player));
 		});
 
 		// Same thing on respawn
 		ServerPlayerEvents.AFTER_RESPAWN.register(((oldPlayer, newPlayer, alive) -> {
 			PlayerHealth.setPlayerHealth(newPlayer, WorldState.getPlayerState(newPlayer).maxHealthModifier);
-			handler.getPlayer().setHealth(PlayerHealth.getPlayerHealthTotal(handler.getPlayer()));
+			newPlayer.setHealth(PlayerHealth.getPlayerHealthTotal(newPlayer));
 		}));
 	}
 
@@ -68,7 +70,8 @@ public class DamageHelper implements ModInitializer {
 
 	public static class Immunity {
 		// list of entity ID (not uuid) and corresponding list of damage sources
-		// (as identifiers: minecraft:lightning_bolt or minecraft:zombie) to have immunity to
+		// (as identifiers: minecraft:lightning_bolt or minecraft:zombie) to have
+		// immunity to
 		protected static HashMap<Integer, ArrayList<String>> IMMUNITY_LIST = new HashMap<>();
 
 		// Add immunity from damageSource to entity id
@@ -89,7 +92,7 @@ public class DamageHelper implements ModInitializer {
 
 		// Remove id from the list entirely
 		public static void remove(int id) {
-            IMMUNITY_LIST.remove(id);
+			IMMUNITY_LIST.remove(id);
 		}
 
 		// get the list of immunities the entity id should have
@@ -130,11 +133,14 @@ public class DamageHelper implements ModInitializer {
 			PersistentPlayerData playerState = WorldState.getPlayerState(player);
 
 			// just interface with health mixin or whatever here
-			EntityAttributeInstance attributeInstance = player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+			EntityAttributeInstance attributeInstance = player
+					.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
 
 			if (attributeInstance != null) {
 				attributeInstance.removeModifier(player.getUuid());
-				attributeInstance.addPersistentModifier(new EntityAttributeModifier(player.getUuid(), "DamageHelper::updatePlayerHealth", playerState.maxHealthModifier, EntityAttributeModifier.Operation.ADDITION));
+				attributeInstance.addPersistentModifier(
+						new EntityAttributeModifier(player.getUuid(), "DamageHelper::updatePlayerHealth",
+								playerState.maxHealthModifier, EntityAttributeModifier.Operation.ADDITION));
 			}
 		}
 	}
