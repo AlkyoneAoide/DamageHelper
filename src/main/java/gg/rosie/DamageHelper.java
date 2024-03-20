@@ -28,11 +28,13 @@ public class DamageHelper implements ModInitializer {
 		// Runs code (to restore saved player health) on player connect
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			PlayerHealth.setPlayerHealth(handler.getPlayer(), WorldState.getPlayerState(handler.getPlayer()).maxHealthModifier);
+			handler.getPlayer().setHealth(PlayerHealth.getPlayerHealthTotal(handler.getPlayer()));
 		});
 
 		// Same thing on respawn
 		ServerPlayerEvents.AFTER_RESPAWN.register(((oldPlayer, newPlayer, alive) -> {
 			PlayerHealth.setPlayerHealth(newPlayer, WorldState.getPlayerState(newPlayer).maxHealthModifier);
+			handler.getPlayer().setHealth(PlayerHealth.getPlayerHealthTotal(handler.getPlayer()));
 		}));
 	}
 
