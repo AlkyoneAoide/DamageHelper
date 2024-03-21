@@ -1,6 +1,5 @@
 package gg.rosie.mixin.entities;
 
-import gg.rosie.mixin.entities.LivingEntityMixin;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,6 +31,6 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin {
 
     @Inject(method = "applyDamage", at = @At(value = "HEAD", shift = At.Shift.BY, by = 1))
     private void applyDamage(DamageSource source, float amount, CallbackInfo ci) {
-        applyDamageInject(source, amount);
+        applyDamageInject(source, amount, source.getAttacker(), this);
     }
 }

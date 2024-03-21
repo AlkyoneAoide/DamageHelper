@@ -28,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ILivingEntityMixin {
@@ -53,7 +52,7 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
 	// applyDamage due to the shift by 1
 	@Inject(method = "applyDamage", at = @At(value = "HEAD", shift = At.Shift.BY, by = 1))
 	private void applyDamage(DamageSource source, float amount, CallbackInfo ci) {
-		applyDamageInject(source, amount);
+		applyDamageInject(source, amount, source.getAttacker(), this);
 	}
 
 	@Override
@@ -67,27 +66,19 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
 		}
 	}
 
-	// Remember this runs for the entity being attacked,
-	// and not for the attacking entity
+	// Remember this runs for the entity being attacked (target),
+	// and not for the attacking entity (attacker)
 	@Override
-	public void applyDamageInject(DamageSource source, float amount) {
-		Class<?> attackerClass;
-
-		try {
-			attackerClass = Objects.requireNonNull(source.getAttacker()).getClass();
-		} catch (Exception e) {
-			return;
-		}
-
-		if (LivingEntityMixin.class.isAssignableFrom(attackerClass) &&
-				(((LivingEntityMixin) source.getAttacker()).isCritical())) {
-			LivingEntityMixin attacker = (LivingEntityMixin) source.getAttacker();
+	public void applyDamageInject(DamageSource source, float amount, Entity attacker, Entity target) {
+		if (LivingEntityMixin.class.isAssignableFrom(attacker.getClass()) &&
+				(((LivingEntityMixin) attacker).isCritical())) {
+			LivingEntityMixin attackerAsMixin = (LivingEntityMixin) attacker;
 
 			// You can't attack with an offhand item,
 			// but this is the only way to get items in general,
 			// so we need to enumerate both and then pick the first one.
 			ArrayList<ItemStack> handItems = new ArrayList<>();
-			for (ItemStack item : attacker.getHandItems()) {
+			for (ItemStack item : attackerAsMixin.getHandItems()) {
 				handItems.add(item);
 			}
 
@@ -98,12 +89,13 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
 			}
 
 			String identString = itemIdent.toString();
-			BiConsumer<DamageSource, Float> toRun = DamageHelper.ItemCrits.get(identString);
+			DamageHelperUtils.QuadConsumer<DamageSource, Float, Entity, Entity> toRun = DamageHelper.ItemCrits.get(identString);
+
 			if (toRun != null) {
-				toRun.accept(source, amount);
+				toRun.accept(source, amount, attacker, target);
 			}
 
-			attacker.setCritical(false);
+			attackerAsMixin.setCritical(false);
 		}
 	}
 

@@ -2,18 +2,21 @@ package gg.rosie;
 
 import gg.rosie.state.PersistentPlayerData;
 import gg.rosie.state.WorldState;
-import net.fabricmc.api.ModInitializer;
+import gg.rosie.DamageHelperUtils.QuadConsumer;
 
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class DamageHelper implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -48,7 +51,7 @@ public class DamageHelper implements ModInitializer {
 		// Note that this is only additive, and does not touch existing crit handling
 		// code.
 		// Also, it is a consumer and therefore has a guaranteed void return type.
-		protected static HashMap<String, BiConsumer<DamageSource, Float>> CUSTOM_CRIT_LIST = new HashMap<>();
+		protected static HashMap<String, QuadConsumer<DamageSource, Float, Entity, Entity>> CUSTOM_CRIT_LIST = new HashMap<>();
 
 		// Add a custom crit effect to an arbitrary item
 		// This is strictly additive, it gets injected
@@ -58,12 +61,13 @@ public class DamageHelper implements ModInitializer {
 		// func is a two-parameter function that returns void
 		// param 1 is a DamageSource and param 2 is a float (damage amount)
 		// same as what is given to the "LivingEntity.applyDamage"
-		public static void add(String ident, BiConsumer<DamageSource, Float> func) {
+		// param 3 is the attacking entity and param 4 is the entity being attacked
+		public static void add(String ident, QuadConsumer<DamageSource, Float, Entity, Entity> func) {
 			CUSTOM_CRIT_LIST.put(ident, func);
 		}
 
 		// Get the crit function for the specified item/identifier
-		public static BiConsumer<DamageSource, Float> get(String ident) {
+		public static QuadConsumer<DamageSource, Float, Entity, Entity> get(String ident) {
 			return CUSTOM_CRIT_LIST.get(ident);
 		}
 	}
