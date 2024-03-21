@@ -52,6 +52,10 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityM
 	// applyDamage due to the shift by 1
 	@Inject(method = "applyDamage", at = @At(value = "HEAD", shift = At.Shift.BY, by = 1))
 	private void applyDamage(DamageSource source, float amount, CallbackInfo ci) {
+		if (source.getAttacker() == null) {
+			return;
+		}
+
 		applyDamageInject(source, amount, source.getAttacker(), this);
 	}
 
